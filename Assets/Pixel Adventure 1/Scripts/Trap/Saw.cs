@@ -15,7 +15,7 @@ public class Saw : Trap
         currentTarget = 0;
     }
 
-    private void Update()
+    protected override void Update()
     {
         MoveToTargetPosition();
     }
