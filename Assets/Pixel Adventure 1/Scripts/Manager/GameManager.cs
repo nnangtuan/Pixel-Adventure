@@ -4,12 +4,13 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using System;
+using static GameManager;
 
 public enum GameState { Waiting, Game, Win, Lose}
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
-    public static GameManager Instance { get=>instance ?? (instance = new GameManager()); }
+    public static GameManager Instance { get => instance; }
     public GameState gameState { get; private set; }
     private void Awake()
     {
@@ -20,6 +21,10 @@ public class GameManager : MonoBehaviour
             Destroy(instance);
         gameState = GameState.Game;
     }
+    private void Udate()
+    {
+        
+    }
     public void SetGameState(GameState gameState)
     {
         this.gameState = gameState;
@@ -29,7 +34,10 @@ public class GameManager : MonoBehaviour
             .OfType<IGameStateListener>();
 
         foreach (IGameStateListener gameStateListener in gameStateListeners)
+        {
             gameStateListener.GameStateChangedCallback(gameState);
+            Debug.Log("Notifying listener: " + gameStateListener);
+        }
     }
     public interface IGameStateListener
     {

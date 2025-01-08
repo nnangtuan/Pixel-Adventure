@@ -4,20 +4,34 @@ using UnityEngine;
 
 public class Saw : Trap
 {
+    [Header (" Component ")]
     [SerializeField] private List<GameObject>targetPosition = new List<GameObject>();
     [SerializeField] private int currentTarget;
-    [SerializeField] private GameObject obj; 
+    [SerializeField] private GameObject obj;
+
+    [Header(" damage ")]
+    [SerializeField] private int dame = 2;
     
 
     [SerializeField] private float moveSpeed;
-    private void Start()
+    protected override void Start()
     {
         currentTarget = 0;
+        
     }
 
     protected override void Update()
     {
+        base.Update();
+        if (!canActive)
+            return;
         MoveToTargetPosition();
+    }
+    protected override void OnTriggerEnter2D(Collider2D collision)
+    {
+        base.OnTriggerEnter2D (collision);
+        
+
     }
 
     private void Rotate(Vector2 a, Vector2 b)
@@ -37,4 +51,10 @@ public class Saw : Trap
         if (obj.transform.position == targetPosition[currentTarget].transform.position)
             currentTarget++;
     }
+    protected override void TakeDamage()
+    {
+        base.TakeDamage();
+        PlayerManager.Instance.player.playerLife.TakeDamage(dame);
+    }
+    
 }

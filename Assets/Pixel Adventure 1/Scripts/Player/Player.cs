@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Tilemaps;
 using UnityEngine;
+using static GameManager;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IGameStateListener
 {
     private static Player instance;
     public static Player Instance { get=> instance;}
 
     [Header(" Move info ")]
+    public bool canUpdatePlayer;
     public float moveSpeed;
     public float doubleJumpForce;
     public float jumpForce;
@@ -22,6 +24,7 @@ public class Player : MonoBehaviour
     public Animator anim;
     public PlayerStateMachine stateMachine;
     public PlayerDetected playerDetected;
+    public PlayerLife playerLife;
 
     public PlayerIdleState idleState { get; private set; }
     public PlayerRunState runState { get; private set; }
@@ -33,7 +36,6 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-
         stateMachine = new PlayerStateMachine();
         idleState = new PlayerIdleState(this, stateMachine, "Idle");
         runState = new PlayerRunState(this, stateMachine, "Run");
@@ -46,16 +48,20 @@ public class Player : MonoBehaviour
     }
     private void Start()
     {
+        canUpdatePlayer = true;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<Animator>();
         playerDetected = GetComponent<PlayerDetected>();
+        playerLife = GetComponent<PlayerLife>();
         
         stateMachine.Initialize(idleState);
     }
     private void Update()
-    {;
+    {
+        if (!canUpdatePlayer)
+            return;
         stateMachine.currentState.Update();
-        
+        PlayerDead();
     }
     public void SetVelocity(float x, float y)
     {
@@ -76,5 +82,23 @@ public class Player : MonoBehaviour
         else if (_x > 0 && !facingDir)
             Flip();
     }
+    public void PlayerDead()
+    {
+        if (playerLife.currentHP <= 0)
+        {
+            StartCoroutine(Die());
+        }
 
+    }
+    
+    private IEnumerator Die()
+    {
+        yield return new WaitForSeconds(3f);
+        GameManager.Instance.SetGameState(GameState.Lose);
+    }
+    public void GameStateChangedCallback(GameState gameState)
+    {
+        if(gameState == GameState.Lose)        
+            canUpdatePlayer = false;
+    }
 }

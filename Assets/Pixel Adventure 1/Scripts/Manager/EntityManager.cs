@@ -6,11 +6,10 @@ using static GameManager;
 public class EntityManager : MonoBehaviour, IGameStateListener
 {
 
-    protected bool canActive;
+    protected bool canActive=true;
     protected virtual void Update()
     {
-        if (!canActive)
-            return;
+        
     }
     public void GameStateChangedCallback(GameState gameState)
     {
